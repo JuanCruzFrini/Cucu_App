@@ -1,9 +1,9 @@
-package com.cucu.cucuapp.data.models
+package com.cucu.cucuapp.data.models.cart
 
 import kotlin.math.roundToInt
 
 data class Cart(
-    val products: List<CartProduct>? = emptyList()
+    var products: List<CartProduct>? = emptyList()
 ) {
     fun getAmount(): Int {
         var totalPrice = 0.00

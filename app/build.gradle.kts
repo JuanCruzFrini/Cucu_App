@@ -118,6 +118,14 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
 
+    // Kotlin Flow
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
+    // Dependencia de Kotlin Coroutines
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    // Dependencia de Kotlin Coroutines para Reactive Streams
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.2")
+
+
     //splash api
     implementation ("androidx.core:core-splashscreen:1.0.1")
 

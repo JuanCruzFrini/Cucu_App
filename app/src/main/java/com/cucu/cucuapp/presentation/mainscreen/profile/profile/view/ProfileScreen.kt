@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -61,6 +63,8 @@ import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.application.firstCharToUpperCase
 import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.data.models.User
+import com.cucu.cucuapp.presentation.detail.view.calculateDiscountPercent
+import com.cucu.cucuapp.presentation.detail.view.isInDiscount
 import com.cucu.cucuapp.presentation.mainscreen.profile.login.view.LoginScreen
 import com.cucu.cucuapp.presentation.mainscreen.profile.login.viewmodel.LoginViewModel
 import com.cucu.cucuapp.presentation.mainscreen.profile.profile.viewmodel.ProfileViewModel
@@ -162,14 +166,7 @@ fun SetProfileContent(
 ) {
     viewModel.authListener()
     viewModel.user.observeAsState().value?.let { user ->
-        ProfileScreen(user,
-           /* User(
-                id = user.uid,
-                name = user.displayName,
-                img = user.photoUrl.toString()
-            ),*/
-            mainNavController
-        )
+        ProfileScreen(user, mainNavController)
     } ?: LoginScreen()
 }
 
@@ -260,6 +257,7 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
                         .weight(2f),
                     fontWeight = FontWeight.Light
                 )
+/*
                 Text(
                     text = "$" + product.newPrice?.roundToInt().toString(),
                     fontSize = 28.sp,
@@ -270,6 +268,29 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
                         .weight(1f),
                     fontWeight = FontWeight.SemiBold
                 )
+*/
+                Row(
+                    Modifier.fillMaxWidth().weight(1f),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(
+                        text = "$" + product.newPrice?.roundToInt().toString(),
+                        fontSize = 28.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    if (isInDiscount(product)) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${calculateDiscountPercent(product)}% OFF",
+                            color = Color.Green,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
         }
     }

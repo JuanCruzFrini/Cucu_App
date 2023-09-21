@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.cucu.cucuapp.application.Routes
-import com.cucu.cucuapp.data.models.ItemCategory
+import com.cucu.cucuapp.data.models.items.ItemCategory
 import com.cucu.cucuapp.presentation.navdrawer.categories.viewmodel.CategoriesViewModel
 
 @Composable
@@ -70,7 +71,7 @@ fun CategoryItem(category: ItemCategory, mainNavController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(modifier = Modifier.size(30.dp), imageVector = category.icon!!, contentDescription = "")
+            Icon(modifier = Modifier.size(30.dp), imageVector = Icons.Rounded.List, contentDescription = "")
             Text(text = "${category.category}", fontSize = 16.sp, textAlign = TextAlign.Start)
             Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = "")
         }

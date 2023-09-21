@@ -1,4 +1,4 @@
-package com.cucu.cucuapp.data.models
+package com.cucu.cucuapp.data.models.items
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

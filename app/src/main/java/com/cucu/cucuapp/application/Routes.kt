@@ -2,7 +2,7 @@ package com.cucu.cucuapp.application
 
 import android.net.Uri
 import com.cucu.cucuapp.data.models.Product
-import com.cucu.cucuapp.data.models.Purchase
+import com.cucu.cucuapp.data.models.purchase.Purchase
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 

@@ -24,9 +24,10 @@ fun DiscountsScreen(
     viewModel:DiscountsViewModel = hiltViewModel()
     ) {
 
-    viewModel.getAllProducts()
-
-    viewModel.productsList.observeAsState().value?.let { list ->
+    //viewModel.getAllProducts()
+    //viewModel.productsList.observeAsState().value?.let { list ->
+    viewModel.getDiscounts()
+    viewModel.discountsList.observeAsState().value?.let { discounts ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
@@ -34,7 +35,7 @@ fun DiscountsScreen(
             Text(text = "Descuentos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
             Box(modifier = Modifier.weight(1f)){
                 LazyRow {
-                    items(list, key = { it.id!! }){
+                    items(discounts, key = { it.id!! }){
                         ProductRowItem(it, mainNavController)
                     }
                 }
@@ -43,7 +44,7 @@ fun DiscountsScreen(
             Text(text = "Combos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
             Box(modifier = Modifier.weight(1f)){
                 LazyRow{
-                    items(list, key = { it.id!! }){
+                    items(discounts, key = { it.id!! }){
                         ProductRowItem(it, mainNavController)
                     }
                 }
@@ -52,7 +53,7 @@ fun DiscountsScreen(
             Text(text = "Promociones", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
             Box(modifier = Modifier.weight(1f)){
                 LazyRow{
-                    items(list, key = { it.id!! }){
+                    items(discounts, key = { it.id!! }){
                         ProductRowItem(it, mainNavController)
                     }
                 }

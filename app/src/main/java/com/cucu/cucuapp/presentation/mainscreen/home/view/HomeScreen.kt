@@ -55,6 +55,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -73,8 +74,10 @@ import coil.compose.AsyncImage
 import com.cucu.cucuapp.R
 import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.application.firstCharToUpperCase
-import com.cucu.cucuapp.data.models.ItemMenu
 import com.cucu.cucuapp.data.models.Product
+import com.cucu.cucuapp.data.models.items.ItemMenu
+import com.cucu.cucuapp.presentation.detail.view.calculateDiscountPercent
+import com.cucu.cucuapp.presentation.detail.view.isInDiscount
 import com.cucu.cucuapp.presentation.mainscreen.discounts.view.DiscountsScreen
 import com.cucu.cucuapp.presentation.mainscreen.home.viewmodel.HomeViewModel
 import com.cucu.cucuapp.presentation.mainscreen.profile.profile.view.ProfileScreenController
@@ -134,6 +137,7 @@ fun TopAppBarController(
 ) {
     return when (navBackStackEntryState.value?.destination?.route){
         Routes.Profile.route -> TopBarProfile(scrollBehavior, drawerState, mainNavController)
+        Routes.PurchaseDetail.route -> { }
         //discounts and home
         else -> TopBar(scrollBehavior = scrollBehavior, drawerState = drawerState)
     }
@@ -144,6 +148,9 @@ fun ProductsList(
     navController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+
+    //viewModel.getPurchasesRefs()
+
     viewModel.getAllProducts()
     viewModel.productsList.observeAsState().value?.let { list ->
         LazyColumn{
@@ -206,16 +213,28 @@ fun ProductItem(product: Product, navController: NavHostController? = null) {
                         .weight(2f),
                     fontWeight = FontWeight.Light
                 )
-                Text(
-                    text = "$" + product.newPrice?.roundToInt().toString(),
-                    fontSize = 28.sp,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    Modifier.fillMaxWidth().weight(1f),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(
+                        text = "$" + product.newPrice?.roundToInt().toString(),
+                        fontSize = 28.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    if (isInDiscount(product)) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${calculateDiscountPercent(product)}% OFF",
+                            color = Color.Green,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
         }
     }

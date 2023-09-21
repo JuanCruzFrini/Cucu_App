@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cucu.cucuapp.data.models.ItemCategory
+import com.cucu.cucuapp.data.models.items.ItemCategory
 import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.domain.GetCategoriesUseCase
 import com.cucu.cucuapp.domain.GetProductsByCategoryUseCase

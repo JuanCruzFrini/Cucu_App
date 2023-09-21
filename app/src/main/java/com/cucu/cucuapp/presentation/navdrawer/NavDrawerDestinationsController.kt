@@ -64,19 +64,21 @@ fun TopBarNavigateBack(mainNavController: NavHostController) {
         else -> { mainNavController.currentDestination?.route?.firstCharToUpperCase() }
     }
 
-    Surface(shadowElevation = 3.dp){
-        TopAppBar(
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                navigationIconContentColor = Purple80,
-                titleContentColor = Purple80,
-                scrolledContainerColor = Purple40,
-            ),
-            title = { Text(text = "$checkRoute")},
-            navigationIcon = {
-                IconButton(onClick = { mainNavController.popBackStack() }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+    if (checkRoute != Routes.Cart.route.firstCharToUpperCase()) {
+        Surface(shadowElevation = 3.dp) {
+            TopAppBar(
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    navigationIconContentColor = Purple80,
+                    titleContentColor = Purple80,
+                    scrolledContainerColor = Purple40,
+                ),
+                title = { Text(text = "$checkRoute") },
+                navigationIcon = {
+                    IconButton(onClick = { mainNavController.popBackStack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }

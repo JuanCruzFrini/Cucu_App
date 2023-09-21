@@ -15,7 +15,7 @@ import androidx.navigation.navArgument
 import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.application.parcelableTypeOf
 import com.cucu.cucuapp.data.models.Product
-import com.cucu.cucuapp.data.models.Purchase
+import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.presentation.detail.view.DetailScreen
 import com.cucu.cucuapp.presentation.mainscreen.home.view.MainScreen
 import com.cucu.cucuapp.presentation.navdrawer.NavDrawerDestinationsController

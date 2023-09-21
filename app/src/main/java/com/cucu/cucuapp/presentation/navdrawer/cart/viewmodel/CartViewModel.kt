@@ -5,15 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cucu.cucuapp.data.models.Cart
-import com.cucu.cucuapp.domain.GetCartUseCase
+import com.cucu.cucuapp.data.models.cart.Cart
+import com.cucu.cucuapp.data.models.purchase.Purchase
+import com.cucu.cucuapp.data.repository.ProductsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val getCart: GetCartUseCase
+    private val repository: ProductsRepository
 ) : ViewModel() {
 
     private val _cart: MutableLiveData<Cart> = MutableLiveData()
@@ -22,43 +23,51 @@ class CartViewModel @Inject constructor(
     fun getCart(){
         viewModelScope.launch {
             try {
-                val list = getCart.invoke()
-                _cart.postValue(list)
+                val cart = repository.getCart()
+                _cart.postValue(cart)
             } catch (e: Exception) {
                 Log.e("Error", e.message.toString())
             }
         }
     }
 
-    fun buyCart(cart: Cart){
+    fun buyCart(purchase: Purchase){
         viewModelScope.launch {
             try {
-                //transform cart to purchase and clean cart list
+                repository.buyCart(purchase)
             } catch (e: Exception) {
                 Log.e("Error", e.message.toString())
             }
         }
     }
 
-    fun cancelCart(){
+    fun clearCart(){
         viewModelScope.launch {
             try {
-                //clean cart list
+                repository.clearCart()
             } catch (e: Exception) {
                 Log.e("Error", e.message.toString())
             }
         }
     }
 
-    fun removeProduct(id: Int?) {
+    fun removeProduct(documentId: String) {
         viewModelScope.launch {
             try {
-                //remove with id
+                repository.removeCartProduct(documentId)
             } catch (e: Exception) {
                 Log.e("Error", e.message.toString())
             }
         }
     }
 
-
+    fun editProductQuantity(documentId: String, newQuantity: Int){
+        viewModelScope.launch {
+            try {
+                repository.editCartProductQuantity(documentId, newQuantity)
+            } catch (e: Exception) {
+                Log.e("Error", e.message.toString())
+            }
+        }
+    }
 }

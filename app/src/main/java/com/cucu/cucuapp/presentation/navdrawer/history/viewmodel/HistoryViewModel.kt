@@ -1,4 +1,4 @@
-package com.cucu.cucuapp.presentation.mainscreen.discounts.viewmodel
+package com.cucu.cucuapp.presentation.navdrawer.history.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -12,21 +12,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DiscountsViewModel @Inject constructor(
+class HistoryViewModel @Inject constructor(
     private val repository: ProductsRepository
-) : ViewModel() {
+): ViewModel() {
 
-    private val _discountsList:MutableLiveData<List<Product>> = MutableLiveData()
-    val discountsList:LiveData<List<Product>> = _discountsList
-
-    fun getDiscounts(){
+    private val _history: MutableLiveData<List<Product>> = MutableLiveData()
+    val history: LiveData<List<Product>> = _history
+    fun getUsersHistory(){
         viewModelScope.launch {
             try {
-                val discounts = repository.getDiscounts()
-                _discountsList.postValue(discounts)
-            } catch (e: Exception) {
-                Log.e("Error", e.message.toString())
+                val historyList = repository.getHistory()
+                _history.postValue(historyList)
+            } catch (e:Exception){
+                Log.d("Error", e.message.toString())
             }
         }
     }
+
 }
