@@ -6,13 +6,11 @@ object Constants {
 
     const val PRODUCTS_COLL = "products"
     const val CATEGORIES_COLL = "categories"
-
-    const val PURCHASES_REFS_COLL = "purchases_references"
-
-    const val USERS_COLL = "users"
-
-    const val FAVORITES_COLL = "favorites"
     const val PURCHASES_COLL = "purchases"
+    const val PURCHASES_REFS_COLL = "purchases_references"
+    const val USERS_COLL = "users"
+    const val NOTIFICATIONS_COLL = "notifications"
+    const val FAVORITES_COLL = "favorites"
     const val CART_COLL = "cart"
     const val HISTORY_COLL = "history"
 

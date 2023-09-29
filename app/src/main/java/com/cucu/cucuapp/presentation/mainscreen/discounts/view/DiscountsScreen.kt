@@ -1,11 +1,13 @@
 package com.cucu.cucuapp.presentation.mainscreen.discounts.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,40 +24,36 @@ import com.cucu.cucuapp.presentation.mainscreen.profile.profile.view.ProductRowI
 fun DiscountsScreen(
     mainNavController: NavHostController,
     viewModel:DiscountsViewModel = hiltViewModel()
-    ) {
+) {
 
-    //viewModel.getAllProducts()
-    //viewModel.productsList.observeAsState().value?.let { list ->
     viewModel.getDiscounts()
     viewModel.discountsList.observeAsState().value?.let { discounts ->
         Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(state = rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             Text(text = "Descuentos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            Box(modifier = Modifier.weight(1f)){
-                LazyRow {
-                    items(discounts, key = { it.id!! }){
-                        ProductRowItem(it, mainNavController)
-                    }
+            LazyRow {
+                items(discounts, key = { it.id!! }) {
+                    ProductRowItem(it, mainNavController)
                 }
             }
 
+
             Text(text = "Combos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            Box(modifier = Modifier.weight(1f)){
-                LazyRow{
-                    items(discounts, key = { it.id!! }){
-                        ProductRowItem(it, mainNavController)
-                    }
+            LazyRow {
+                items(discounts, key = { it.id!! }) {
+                    ProductRowItem(it, mainNavController)
                 }
             }
 
             Text(text = "Promociones", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            Box(modifier = Modifier.weight(1f)){
-                LazyRow{
-                    items(discounts, key = { it.id!! }){
-                        ProductRowItem(it, mainNavController)
-                    }
+            LazyRow {
+                items(discounts, key = { it.id!! }) {
+                    ProductRowItem(it, mainNavController)
                 }
             }
         }

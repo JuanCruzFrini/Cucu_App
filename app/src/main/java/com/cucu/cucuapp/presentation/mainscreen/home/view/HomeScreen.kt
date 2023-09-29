@@ -101,8 +101,6 @@ fun ProductItem(product: Product, navController: NavHostController? = null) {
             }
     ) {
         Row {
-            //Coil library
-            println(product.img)
             AsyncImage(
                 model = product.img,
                 contentScale = ContentScale.FillBounds,
@@ -112,9 +110,7 @@ fun ProductItem(product: Product, navController: NavHostController? = null) {
                 modifier = Modifier.weight(1.5f)
             )
             Column(
-                modifier = Modifier
-                    .weight(2f)
-                    .padding(8.dp),
+                modifier = Modifier.weight(2f).padding(8.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -122,17 +118,13 @@ fun ProductItem(product: Product, navController: NavHostController? = null) {
                     fontSize = 20.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    modifier = Modifier.fillMaxWidth().weight(1f)
                 )
                 Text(
                     text = product.description?.firstCharToUpperCase()!!,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f),
+                    modifier = Modifier.fillMaxWidth().weight(2f),
                     fontWeight = FontWeight.Light
                 )
                 Row(

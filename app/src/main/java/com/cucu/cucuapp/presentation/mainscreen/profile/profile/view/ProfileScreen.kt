@@ -16,12 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
@@ -125,10 +129,18 @@ fun TopBarProfile(
                     IconButton(onClick = {
                         mainNavController.navigate(Routes.Notifications.route)
                     }) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications"
-                        )
+                        BadgedBox(badge = {
+                            viewModel.getNotificationsNotOpenQuant()
+                            viewModel.notOpenedNotifications.observeAsState().value?.let { quantity ->
+                                if (quantity != 0) Badge { Text(text = quantity.toString()) }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications"
+                            )
+                        }
+
                     }
                     //menu opciones top bar
                     IconButton(onClick = { isMenuExpanded = true }) {
@@ -147,9 +159,8 @@ fun TopBarProfile(
                                 onClick = {
                                     isMenuExpanded = !isMenuExpanded
                                     viewModel.signOut()
-                                })
-                           /* DropdownMenuItem(text = { Text(text = "Opcion 2") }, onClick = { })
-                            DropdownMenuItem(text = { Text(text = "Opcion 3") }, onClick = { })*/
+                                }
+                            )
                         }
                     )
                 }
@@ -180,6 +191,9 @@ fun ProfileScreen(
     viewModel.getUserHistory()
 
     Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -187,24 +201,24 @@ fun ProfileScreen(
 
         viewModel.favorites.observeAsState().value?.let { favorites ->
             Text(text = "Favoritos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            Box(modifier = Modifier.weight(1f)) {
+            //Box(/*modifier = Modifier.weight(1f)*/) {
                 LazyRow {
                     items(favorites, key = { it.id!! }) {
                         ProductRowItem(it, mainNavController)
                     }
                 }
-            }
+            //}
         }
 
         viewModel.history.observeAsState().value?.let { history ->
             Text(text = "Vistos recientemente", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            Box(modifier = Modifier.weight(1f)) {
-                LazyRow {
+            //Box(/*modifier = Modifier.weight(1f)*/) {
+                LazyRow(Modifier.height(300.dp)) {
                     items(history, key = { it.id!! }) {
                         ProductRowItem(it, mainNavController)
                     }
                 }
-            }
+            //}
         }
     }
 }
@@ -213,8 +227,8 @@ fun ProfileScreen(
 fun ProductRowItem(product: Product, mainNavController: NavHostController) {
     Card(
         modifier = Modifier
-            .size(300.dp, 300.dp)
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .size(300.dp, 200.dp)
+            .padding(8.dp)
             .clickable {
                 mainNavController.currentBackStackEntry?.savedStateHandle?.set(
                     key = "product",
@@ -226,7 +240,7 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
         shape = RoundedCornerShape(20.dp),
 
     ) {
-        Row(Modifier.fillMaxSize()){
+        Row(/*Modifier.fillMaxSize()*/){
             AsyncImage(
                 model = product.img,
                 contentDescription = "",
@@ -257,21 +271,11 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
                         .weight(2f),
                     fontWeight = FontWeight.Light
                 )
-/*
-                Text(
-                    text = "$" + product.newPrice?.roundToInt().toString(),
-                    fontSize = 28.sp,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
+                Row(
+                    Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    fontWeight = FontWeight.SemiBold
-                )
-*/
-                Row(
-                    Modifier.fillMaxWidth().weight(1f),
-                    verticalAlignment = Alignment.Bottom,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = "$" + product.newPrice?.roundToInt().toString(),

@@ -6,5 +6,7 @@ import javax.inject.Inject
 class NotificationsRepository @Inject constructor(
     private val dataSource: NotificationsDataSource
 ) {
-    fun getUserNotifications() = dataSource.getNotifications()
+    suspend fun getUserNotifications() = dataSource.getNotifications()
+    suspend fun updateNotificationState(id:String) = dataSource.updateNotificationState(id)
+    suspend fun getNotificationsNotOpen() = dataSource.getNotificationsNotOpen()
 }

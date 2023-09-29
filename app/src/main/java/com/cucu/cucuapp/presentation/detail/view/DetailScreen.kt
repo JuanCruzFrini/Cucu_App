@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -64,7 +65,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DetailScreen(mainNavController: NavHostController, product:Product?) {
     Scaffold(
-        Modifier.verticalScroll(state = rememberScrollState()),
+        //Modifier.fillMaxSize().verticalScroll(state = rememberScrollState()),
         topBar = { TopBarNavigateBack(mainNavController) }
     ) { paddingValues ->
         Surface(modifier = Modifier.padding(paddingValues)) {
@@ -122,11 +123,9 @@ fun DetailContent(
         }
     )
 
-    Column {
+    Column(Modifier.fillMaxSize().verticalScroll(state = rememberScrollState())) {
         Text(text = product?.name.toString(),
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp))
+            Modifier.fillMaxWidth().padding(16.dp))
 
         AsyncImage(
             model = product?.img,
