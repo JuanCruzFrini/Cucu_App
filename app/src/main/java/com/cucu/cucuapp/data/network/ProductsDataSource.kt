@@ -250,8 +250,6 @@ class ProductsDataSource @Inject constructor(
                     val purchase = purchaseDoc.toObject(Purchase::class.java)
                     purchase?.id = ref.documentId
                     purchase?.let { purchases.add(it) }
-
-                    //purchaseDoc.toObject(Purchase::class.java)?.let { purchases.add(it) }
                 }
 
             }

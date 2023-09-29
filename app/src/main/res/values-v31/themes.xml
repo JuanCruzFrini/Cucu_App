@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.CucuApp" parent="android:Theme.Material.Light.NoActionBar" />
-
+    <!-- Style for API 31+ -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenBackground">@color/ic_logo_background</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_logo_round</item>
         <item name="windowSplashScreenAnimationDuration">200</item>
         <item name="postSplashScreenTheme">@style/Theme.CucuApp</item>
+        <!-- Attribute for API 31+ -->
+        <item name="android:windowSplashScreenBrandingImage">@string/app_name</item>
     </style>
+
 </resources>
