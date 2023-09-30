@@ -5,16 +5,38 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cucu.cucuapp.data.models.User
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.data.repository.ProductsRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    val repository: ProductsRepository
+    private val auth: FirebaseAuth,
+    val repository: ProductsRepository,
 ): ViewModel() {
+
+    private val _user:MutableLiveData<User?> = MutableLiveData()
+    val user: LiveData<User?> = _user
+
+    fun authListener(){
+        auth.addAuthStateListener {
+            if (it.currentUser == null) {
+                _user.postValue(null)
+            } else {
+                _user.postValue(
+                    User(
+                        id = it.currentUser?.uid,
+                        name = it.currentUser?.displayName,
+                        img = it.currentUser?.photoUrl.toString()
+                    )
+                )
+            }
+        }
+    }
 
     private val _existInFavList: MutableLiveData<Boolean> = MutableLiveData()
     val existInFavList: LiveData<Boolean> = _existInFavList

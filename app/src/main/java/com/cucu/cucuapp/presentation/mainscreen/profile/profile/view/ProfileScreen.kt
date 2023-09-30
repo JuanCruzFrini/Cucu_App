@@ -28,6 +28,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,6 +47,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -187,8 +189,14 @@ fun ProfileScreen(
     mainNavController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    viewModel.authListener()
     viewModel.getFavorites()
     viewModel.getUserHistory()
+
+    var isFavsLoading by rememberSaveable { mutableStateOf(viewModel.loadingFavorites.value) }
+    var isHistoryLoading by rememberSaveable { mutableStateOf(viewModel.loadingHistory.value) }
+
+    LoadingDataIndicator(isFavsLoading)
 
     Column(
         Modifier
@@ -199,26 +207,49 @@ fun ProfileScreen(
     ) {
         ProfileHeader(user)
 
+
+
+        viewModel.loadingFavorites.observeAsState().value?.let { isFavsLoading = it }
+        viewModel.loadingHistory.observeAsState().value?.let { isHistoryLoading = it }
+
         viewModel.favorites.observeAsState().value?.let { favorites ->
-            Text(text = "Favoritos", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            //Box(/*modifier = Modifier.weight(1f)*/) {
-                LazyRow {
-                    items(favorites, key = { it.id!! }) {
-                        ProductRowItem(it, mainNavController)
-                    }
-                }
-            //}
+            isFavsLoading = false
+            if (favorites.isNotEmpty()){
+                SubtitleText(text = "Favoritos")
+                ProductsLazyRow(list = favorites, navController = mainNavController)
+            }
         }
 
         viewModel.history.observeAsState().value?.let { history ->
-            Text(text = "Vistos recientemente", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
-            //Box(/*modifier = Modifier.weight(1f)*/) {
-                LazyRow(Modifier.height(300.dp)) {
-                    items(history, key = { it.id!! }) {
-                        ProductRowItem(it, mainNavController)
-                    }
-                }
-            //}
+            isHistoryLoading = false
+            if (history.isNotEmpty()) {
+                SubtitleText(text = "Vistos recientemente")
+                ProductsLazyRow(list = history, navController = mainNavController)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun ProductsLazyRow(list: List<Product>, navController:NavHostController) {
+    LazyRow {
+        items(list, key = { it.id!! }) {
+            ProductRowItem(it, navController)
+        }
+    }
+}
+
+@Composable
+fun SubtitleText(text:String) {
+    Text(text = text, fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
+}
+
+@Composable
+fun LoadingDataIndicator(loading: Boolean?) {
+    if (loading == true){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator()
         }
     }
 }
@@ -227,7 +258,7 @@ fun ProfileScreen(
 fun ProductRowItem(product: Product, mainNavController: NavHostController) {
     Card(
         modifier = Modifier
-            .size(300.dp, 200.dp)
+            .size(300.dp, 180.dp)
             .padding(8.dp)
             .clickable {
                 mainNavController.currentBackStackEntry?.savedStateHandle?.set(
@@ -240,7 +271,7 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
         shape = RoundedCornerShape(20.dp),
 
     ) {
-        Row(/*Modifier.fillMaxSize()*/){
+        Row{
             AsyncImage(
                 model = product.img,
                 contentDescription = "",

@@ -56,6 +56,7 @@ import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.data.models.cart.CartProduct
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.presentation.detail.viewmodel.DetailViewModel
+import com.cucu.cucuapp.presentation.mainscreen.profile.profile.view.SubtitleText
 import com.cucu.cucuapp.presentation.navdrawer.TopBarNavigateBack
 import com.cucu.cucuapp.ui.theme.Purple40
 import com.cucu.cucuapp.ui.theme.PurpleGrey80
@@ -65,7 +66,6 @@ import kotlin.math.roundToInt
 @Composable
 fun DetailScreen(mainNavController: NavHostController, product:Product?) {
     Scaffold(
-        //Modifier.fillMaxSize().verticalScroll(state = rememberScrollState()),
         topBar = { TopBarNavigateBack(mainNavController) }
     ) { paddingValues ->
         Surface(modifier = Modifier.padding(paddingValues)) {
@@ -80,6 +80,7 @@ fun DetailContent(
     viewModel: DetailViewModel = hiltViewModel(),
     mainNavController: NavHostController
 ) {
+    viewModel.authListener()
     product?.id?.let { id -> viewModel.saveInUserHistory(id) }
 
     var detailStock by rememberSaveable { mutableStateOf(product?.stock) }
@@ -123,9 +124,11 @@ fun DetailContent(
         }
     )
 
-    Column(Modifier.fillMaxSize().verticalScroll(state = rememberScrollState())) {
-        Text(text = product?.name.toString(),
-            Modifier.fillMaxWidth().padding(16.dp))
+    Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState())) {
+        Text(text = product?.name.toString(), Modifier.fillMaxWidth().padding(16.dp))
 
         AsyncImage(
             model = product?.img,
@@ -133,9 +136,7 @@ fun DetailContent(
             contentDescription = null,
             error = painterResource(id = R.drawable.ic_launcher_foreground),
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
+            modifier = Modifier.fillMaxWidth().height(250.dp)
         )
 
         PriceBlock(product)
@@ -159,11 +160,13 @@ fun DetailContent(
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
                 onClick = {
+                    viewModel.user.value?.let {
                     if (product?.stock != 0){
                         showPurchaseDialog = true
                     } else {
                         Toast.makeText(context, "Producto no disponible", Toast.LENGTH_SHORT).show()
                     }
+                    } ?: Toast.makeText(context, "Debes registrarte primero", Toast.LENGTH_SHORT).show()
                 }) {
                 Text(text = "Comprar ahora")
             }
@@ -175,10 +178,18 @@ fun DetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                onClick = { showCartDialog = true }) {
+                onClick = {
+                    viewModel.user.value?.let {
+                        if (product?.stock != 0){
+                            showCartDialog = true
+                        } else {
+                            Toast.makeText(context, "Producto no disponible", Toast.LENGTH_SHORT).show()
+                        }
+                    } ?: Toast.makeText(context, "Debes registrarte primero", Toast.LENGTH_SHORT).show()
+                    }) {
                 Text(text = "Agregar al carrito")
             }
-            Text(text = "Descripción", fontSize = 20.sp, modifier = Modifier.padding(0.dp, 16.dp))
+            SubtitleText(text = "Descripción")
             Text(text = product?.description.toString(), Modifier.fillMaxWidth(), color = Color.Gray)
         }
     }
@@ -225,7 +236,6 @@ fun PriceBlock(product: Product?) {
             CheckIfIsFavorite(productId = product?.id)
         }
     }
-
 }
 
 fun isInDiscount(product: Product?): Boolean {
@@ -241,6 +251,8 @@ fun CheckIfIsFavorite(
     viewModel: DetailViewModel = hiltViewModel(),
     productId: String?
 ) {
+    val context = LocalContext.current.applicationContext
+
     productId?.let { id ->
         viewModel.checkIfExistInFavList(id)
         viewModel.existInFavList.observeAsState().value?.let { result ->
@@ -248,16 +260,17 @@ fun CheckIfIsFavorite(
             var exist by rememberSaveable { mutableStateOf(result) }
 
             IconButton(onClick = {
-                viewModel.setFav(id)
-                exist = !exist
+                if (viewModel.user.value != null){
+                    viewModel.setFav(id)
+                    exist = !exist
+                } else {
+                    Toast.makeText(context, "Debes registrarte primero", Toast.LENGTH_SHORT).show()
+                }
             }) {
                 Icon(
                     imageVector =
-                    if (!exist) {
-                        Icons.Outlined.FavoriteBorder
-                    } else {
-                        Icons.Filled.Favorite
-                    },
+                    if (!exist) Icons.Outlined.FavoriteBorder
+                    else Icons.Filled.Favorite,
                     contentDescription = null
                 )
             }
