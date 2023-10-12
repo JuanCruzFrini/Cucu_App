@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,6 +54,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.cucu.cucuapp.R
 import com.cucu.cucuapp.application.Constants
+import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.data.models.cart.CartProduct
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.data.models.purchase.PurchaseState
@@ -65,61 +67,67 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PurchaseDetail(
-    purchase: Purchase?,
+    purchaseId: String?,
     mainNavController: NavHostController,
     viewModel: PurchasesViewModel = hiltViewModel()
 ) {
-    var showCancelDialog by remember { mutableStateOf(false) }
-    var state by rememberSaveable { mutableStateOf(purchase?.state) }
+    purchaseId?.let { viewModel.getPurchaseById(purchaseId) }
 
-    Scaffold(
-        topBar = { TopBarPurchase(mainNavController, state) { showCancelDialog = it } /*TopBarNavigateBack(mainNavController = mainNavController)*/ }
-    ) { paddingValues ->
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            val (list,footer) = createRefs()
+    viewModel.purchase.observeAsState().value?.let { purchase ->
+        var showCancelDialog by remember { mutableStateOf(false) }
+        var state by rememberSaveable { mutableStateOf(purchase.state) }
 
-            DialogCancelPurchase(
-                show = showCancelDialog,
-                onDismiss = { showCancelDialog = !showCancelDialog },
-                onContinue = {
-                    if (purchase != null) {
-                        viewModel.cancelPurchase(purchase)
-                    }
-                    state = PurchaseState.Cancelled().description
-                    showCancelDialog = !showCancelDialog
-                }
-            )
-
-            LazyColumn(
-                modifier = Modifier
-                    .constrainAs(list) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(0.dp, 0.dp, 0.dp, 140.dp)
-            ) {
-                purchase?.products?.let { products ->
-                    items(products, key = { it.product.id!! }) { purchaseItem ->
-                        PurchaseDetailItem(purchaseItem)
-                    }
-                }
+        Scaffold(
+            topBar = {
+                TopBarPurchase(mainNavController, state) {
+                    showCancelDialog = it
+                } /*TopBarNavigateBack(mainNavController = mainNavController)*/
             }
+        ) { paddingValues ->
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                val (list, footer) = createRefs()
 
-            state?.let {
-                PurchaseFooter(
-                    it,
-                    purchase,
-                    modifier = Modifier.constrainAs(footer) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
+                DialogCancelPurchase(
+                    show = showCancelDialog,
+                    onDismiss = { showCancelDialog = !showCancelDialog },
+                    onContinue = {
+                        viewModel.cancelPurchase(purchase)
+                        state = PurchaseState.Cancelled().description
+                        showCancelDialog = !showCancelDialog
                     }
                 )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .constrainAs(list) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        .padding(0.dp, 0.dp, 0.dp, 140.dp)
+                ) {
+                    purchase.products?.let { products ->
+                        items(products, key = { it.product.id!! }) { purchaseItem ->
+                            PurchaseDetailItem(purchaseItem)
+                        }
+                    }
+                }
+
+                state?.let {
+                    PurchaseFooter(
+                        it,
+                        purchase,
+                        modifier = Modifier.constrainAs(footer) {
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                    )
+                }
             }
         }
     }
@@ -141,7 +149,17 @@ fun TopBarPurchase(
             ),
             title = { Text(text = "Purchase")},
             navigationIcon = {
-                IconButton(onClick = { mainNavController.popBackStack() }) {
+                IconButton(onClick = {
+                    //Por alguna razon cuando el backstack es ProductDetail, no vuelve
+                    when {
+                        mainNavController.popBackStack(Routes.Purchases.route, false) -> {
+                            mainNavController.popBackStack(Routes.Purchases.route, false)
+                        }
+                        else -> {
+                            mainNavController.popBackStack(Routes.Main.route, false)
+                        }
+                    }
+                }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
             },
@@ -176,7 +194,7 @@ fun DialogCancelPurchase(
                         fontSize = 24.sp,
                     )
                     Text(
-                        modifier = Modifier.padding(0.dp, 16.dp),
+                        modifier = Modifier.padding(vertical = 16.dp),
                         text = "No podras deshacerlo en el futuro, si te arrepientes deberas volver a realizar la compra desde el comienzo.")
 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -215,7 +233,7 @@ fun PurchaseFooter(state: String, purchase: Purchase?, modifier: Modifier) {
 
     Column(
         modifier
-            .shadow(3.dp, RoundedCornerShape(10.dp, 10.dp, 0.dp, 0.dp))
+            .shadow(3.dp, RoundedCornerShape(topStart = 10.dp, topEnd =  10.dp))
             .background(Purple40, RoundedCornerShape(10.dp, 10.dp, 0.dp, 0.dp))) {
 
         Row(Modifier.fillMaxWidth(),
@@ -342,7 +360,7 @@ fun DialogPurchaseStates(
                             )
                             Constants.purchaseStates.forEach {
                                 Text(
-                                    modifier = Modifier.padding(0.dp, 16.dp, 0.dp, 0.dp),
+                                    modifier = Modifier.padding(top = 16.dp),
                                     text = it.title,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.SemiBold

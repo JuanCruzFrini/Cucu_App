@@ -51,7 +51,7 @@ fun PurchasesScreen(mainNavController: NavHostController) {
 fun PurchasesList(
     navController: NavHostController,
     viewModel: PurchasesViewModel = hiltViewModel()
-    ) {
+) {
 
     viewModel.getPurchases()
     viewModel.purchases.observeAsState().value?.let { list ->
@@ -72,7 +72,7 @@ fun PurchaseItem(purchase: Purchase, navController: NavHostController) {
 
     purchase.products.let { productList ->
         when {
-            productList!!.size >= 3 -> {
+            productList!!.size > 3 -> {
                 listToDraw = productList.subList(0,3)
                 drawNumber = true
             }
@@ -88,11 +88,13 @@ fun PurchaseItem(purchase: Purchase, navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clickable {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "purchase",
-                        value = purchase
-                    )
-                    navController.navigate(Routes.PurchaseDetail.createRoute(purchase))
+                    purchase.id?.let { id ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "purchaseId",
+                            value = id
+                        )
+                        navController.navigate(Routes.PurchaseDetail.createRoute(id))
+                    }
                 },
             elevation = CardDefaults.cardElevation(3.dp),
         ) {

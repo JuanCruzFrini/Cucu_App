@@ -2,7 +2,6 @@ package com.cucu.cucuapp.application
 
 import android.net.Uri
 import com.cucu.cucuapp.data.models.Product
-import com.cucu.cucuapp.data.models.purchase.Purchase
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 
@@ -30,8 +29,12 @@ sealed class Routes(val route:String) {
     object Categories:Routes("categories")
     object Purchases:Routes("purchases")
 
-    object PurchaseDetail:Routes("purchase_detail/{purchase}"){
+    /*object PurchaseDetail:Routes("purchase_detail/{purchase}"){
         fun createRoute(purchase: Purchase) = "purchase_detail/${Uri.encode(Json.encodeToJsonElement(purchase).toString())}"
+    }*/
+
+    object PurchaseDetail:Routes("purchase_detail/{purchaseId}"){
+        fun createRoute(purchaseId: String) = "purchase_detail/$purchaseId"
     }
 
      object Category:Routes("category/{category}"){

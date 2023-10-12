@@ -22,6 +22,9 @@ class DetailViewModel @Inject constructor(
     private val _user:MutableLiveData<User?> = MutableLiveData()
     val user: LiveData<User?> = _user
 
+    private val _purchaseId:MutableLiveData<String?> = MutableLiveData()
+    val purchaseId: LiveData<String?> = _purchaseId
+
     fun authListener(){
         auth.addAuthStateListener {
             if (it.currentUser == null) {
@@ -72,7 +75,8 @@ class DetailViewModel @Inject constructor(
     fun createPurchase(purchase: Purchase){
         viewModelScope.launch {
             try {
-                repository.createPurchase(purchase)
+                val purchaseId = repository.createPurchase(purchase)
+                _purchaseId.value = purchaseId
             } catch(e:Exception){
                 Log.d("Error", e.message.toString())
             }

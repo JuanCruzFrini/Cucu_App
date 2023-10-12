@@ -18,7 +18,6 @@ import androidx.navigation.navArgument
 import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.application.parcelableTypeOf
 import com.cucu.cucuapp.data.models.Product
-import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.presentation.detail.view.DetailScreen
 import com.cucu.cucuapp.presentation.mainscreen.MainScreen
 import com.cucu.cucuapp.presentation.mainscreen.home.viewmodel.HomeViewModel
@@ -74,10 +73,10 @@ class MainActivity : ComponentActivity() {
 
             composable(
                 route = Routes.PurchaseDetail.route,
-                arguments = listOf(navArgument("purchase"){ type = NavType.parcelableTypeOf<Purchase>() })
+                arguments = listOf(navArgument("purchaseId"){ type = NavType.StringType })
             ){
-                val purchase = navController.previousBackStackEntry?.savedStateHandle?.get<Purchase>("purchase")
-                PurchaseDetail(purchase, navController)
+                val purchaseId = navController.previousBackStackEntry?.savedStateHandle?.get<String>("purchaseId")
+                PurchaseDetail(purchaseId, navController)
             }
 
             composable(

@@ -214,12 +214,14 @@ class ProductsDataSource @Inject constructor(
 
         return existInList
     }
-    fun createPurchase(purchase: Purchase) {
+    suspend fun createPurchase(purchase: Purchase) : String {
+        var purchaseId = ""
         user?.let { user ->
             db.collection(Constants.USERS_COLL)
                 .document(user.uid)
                 .collection(Constants.PURCHASES_COLL)
                 .add(purchase).addOnSuccessListener { document ->
+                    purchaseId = document.id
                     updateStock(purchase)
 
                     db.collection(Constants.PURCHASES_REFS_COLL)
@@ -229,8 +231,9 @@ class ProductsDataSource @Inject constructor(
                                 uid = user.uid
                             )
                         )
-                }
+                }.await()
         }
+        return purchaseId
     }
     suspend fun getPurchasesReferences(): List<Purchase> {
         val purchases = mutableListOf<Purchase>()
@@ -335,6 +338,34 @@ class ProductsDataSource @Inject constructor(
         }
 
         return purchases
+    }
+
+    suspend fun getPurchaseById(purchaseId:String): Purchase {
+        var purchase = Purchase()
+
+        user?.let { user ->
+            val purchaseDoc = db
+                .collection(Constants.USERS_COLL)
+                .document(user.uid)
+                .collection(Constants.PURCHASES_COLL)
+                .document(purchaseId)
+                //.orderBy(Constants.DATE, Query.Direction.DESCENDING)
+                .get().await()
+
+                /*val purchaseObj = */
+                purchaseDoc.toObject(Purchase::class.java)?.let { purchase = it  }
+                //purchaseObj?.let { purchase = it }
+                purchase.id = purchaseDoc.id//purchaseObj.id
+                //purchase?.id = document.id
+
+                purchase?.products?.forEach { cartProduct ->
+                    cartProduct.product.id = cartProduct.productId
+                }
+
+                //purchase?.let { purchases.add(it) }
+        }
+
+        return purchase
     }
 
     suspend fun getCart(): Cart {

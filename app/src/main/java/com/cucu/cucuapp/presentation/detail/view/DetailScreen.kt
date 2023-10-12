@@ -25,6 +25,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,16 +63,25 @@ import com.cucu.cucuapp.presentation.mainscreen.profile.profile.view.SubtitleTex
 import com.cucu.cucuapp.presentation.navdrawer.TopBarNavigateBack
 import com.cucu.cucuapp.ui.theme.Purple40
 import com.cucu.cucuapp.ui.theme.PurpleGrey80
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(mainNavController: NavHostController, product:Product?) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = { TopBarNavigateBack(mainNavController) }
     ) { paddingValues ->
         Surface(modifier = Modifier.padding(paddingValues)) {
-            DetailContent(product = product, mainNavController = mainNavController)
+            DetailContent(product = product, mainNavController = mainNavController){
+                scope.launch {
+                    snackbarHostState.showSnackbar(it)
+                }
+            }
         }
     }
 }
@@ -78,7 +90,8 @@ fun DetailScreen(mainNavController: NavHostController, product:Product?) {
 fun DetailContent(
     product: Product?,
     viewModel: DetailViewModel = hiltViewModel(),
-    mainNavController: NavHostController
+    mainNavController: NavHostController,
+    showSnackBar:(String) -> Unit
 ) {
     viewModel.authListener()
     product?.id?.let { id -> viewModel.saveInUserHistory(id) }
@@ -119,17 +132,23 @@ fun DetailContent(
                 viewModel.createPurchase(purchase)
                 detailStock = detailStock?.minus(selectedQuantity)
                 showPurchaseDialog = !showPurchaseDialog
-                mainNavController.navigate(Routes.Purchases.route)
             }
         }
     )
+    viewModel.purchaseId.observeAsState().value?.let { id ->
+        mainNavController.currentBackStackEntry?.savedStateHandle?.set(
+            key = "purchaseId",
+            value = id
+        )
+        mainNavController.navigate(Routes.PurchaseDetail.createRoute(id))
+    }
 
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(state = rememberScrollState())) {
+            .verticalScroll(state = rememberScrollState())
+    ) {
         Text(text = product?.name.toString(), Modifier.fillMaxWidth().padding(16.dp))
-
         AsyncImage(
             model = product?.img,
             contentScale = ContentScale.FillBounds,
@@ -144,9 +163,7 @@ fun DetailContent(
         Column(Modifier.padding(16.dp)) {
 
             Text(
-                modifier = Modifier
-                    .padding(0.dp, 8.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(vertical =  8.dp).fillMaxWidth(),
                 text = "Stock disponible: " + detailStock.toString() + " unidades" ,
                 textAlign = TextAlign.Center,
                 color = Color.Gray
@@ -156,14 +173,13 @@ fun DetailContent(
                     containerColor = Purple40,
                     contentColor = Color.White
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                 onClick = {
                     viewModel.user.value?.let {
                     if (product?.stock != 0){
                         showPurchaseDialog = true
                     } else {
+                        //showSnackBar("Producto no disponible")
                         Toast.makeText(context, "Producto no disponible", Toast.LENGTH_SHORT).show()
                     }
                     } ?: Toast.makeText(context, "Debes registrarte primero", Toast.LENGTH_SHORT).show()
@@ -175,9 +191,7 @@ fun DetailContent(
                     containerColor = PurpleGrey80,
                     contentColor = Purple40
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                 onClick = {
                     viewModel.user.value?.let {
                         if (product?.stock != 0){
@@ -199,7 +213,7 @@ fun DetailContent(
 fun PriceBlock(product: Product?) {
     if (isInDiscount(product)){
         Text(
-            modifier = Modifier.padding(16.dp,8.dp,0.dp,0.dp),
+            modifier = Modifier.padding(start = 16.dp,top = 8.dp),
             text = textWithLineThrough("$${product?.oldPrice?.roundToInt()}"),
             fontSize = 16.sp,
             color = Color.Gray
@@ -207,14 +221,14 @@ fun PriceBlock(product: Product?) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
+                .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "$" + product?.newPrice?.roundToInt().toString(),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                modifier = Modifier.padding(8.dp,0.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 text = "${calculateDiscountPercent(product)}% OFF",
                 fontSize = 24.sp,
                 color = Color.Green

@@ -21,11 +21,25 @@ class PurchasesViewModel @Inject constructor(
     private val _purchases: MutableLiveData<List<Purchase>> = MutableLiveData()
     val purchases: LiveData<List<Purchase>> = _purchases
 
+    private val _purchase: MutableLiveData<Purchase> = MutableLiveData()
+    val purchase: LiveData<Purchase> = _purchase
+
     fun getPurchases(){
         viewModelScope.launch {
             try {
                 val purchases = /*repository.getPurchasesReferences()*/getPurchasesUseCase.invoke()
                 _purchases.postValue(purchases)
+            } catch (e: Exception) {
+                Log.e("Error", e.message.toString())
+            }
+        }
+    }
+
+    fun getPurchaseById(purchaseId:String){
+        viewModelScope.launch {
+            try {
+                val purchase = repository.getPurchaseById(purchaseId)
+                _purchase.value = purchase
             } catch (e: Exception) {
                 Log.e("Error", e.message.toString())
             }
