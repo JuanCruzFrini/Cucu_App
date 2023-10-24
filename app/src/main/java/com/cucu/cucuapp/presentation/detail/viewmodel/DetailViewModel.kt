@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.data.models.User
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.data.repository.ProductsRepository
@@ -47,6 +48,11 @@ class DetailViewModel @Inject constructor(
     fun saveInUserHistory(productId: String){
         viewModelScope.launch {
             repository.saveInUsersHistory(productId)
+        }
+    }
+    fun increaseSeenTimes(product: Product) {
+        viewModelScope.launch {
+            repository.increaseSeenTimes(product)
         }
     }
 

@@ -152,8 +152,16 @@ fun TopBarPurchase(
                 IconButton(onClick = {
                     //Por alguna razon cuando el backstack es ProductDetail, no vuelve
                     when {
+                       /* mainNavController.popBackStack(Routes.PurchaseDetail.route, false) -> {
+                            mainNavController.popBackStack(Routes.Main.route, false)
+                        } else -> {
+                            mainNavController.popBackStack()
+                        }*/
                         mainNavController.popBackStack(Routes.Purchases.route, false) -> {
                             mainNavController.popBackStack(Routes.Purchases.route, false)
+                        }
+                        mainNavController.popBackStack(Routes.Notifications.route, false) -> {
+                            mainNavController.popBackStack(Routes.Notifications.route, false)
                         }
                         else -> {
                             mainNavController.popBackStack(Routes.Main.route, false)

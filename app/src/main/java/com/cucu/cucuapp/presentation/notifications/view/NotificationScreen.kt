@@ -24,6 +24,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,17 +77,25 @@ fun NotificationItem(
     val background = if (hasBeenOpen == false) { Color.Blue.copy(0.3f) } else Color.Transparent
 
     Row(
-        Modifier
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
             .fillMaxWidth()
             .background(background)
             .clickable {
                 if (hasBeenOpen == false) updateState()
                 hasBeenOpen = true
-                navController.navigate(Routes.Purchases.route)
+                //navController.navigate(Routes.Purchases.route)
+                notification.purchaseId?.let { id ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "purchaseId",
+                        value = id
+                    )
+                    navController.navigate(Routes.PurchaseDetail.createRoute(id))
+                }
             }
             .padding(16.dp)
     ) {
-        NotificationImg(Modifier.size(100.dp))
+        NotificationImg(Modifier.size(80.dp))
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -108,7 +117,7 @@ fun NotificationItem(
 
 @Composable
 fun NotificationTitle(text:String ,modifier: Modifier) {
-    Text(text = text, modifier = modifier, maxLines = 1, fontSize = 20.sp)
+    Text(text = text, modifier = modifier, maxLines = 1, fontSize = 20.sp, overflow = TextOverflow.Ellipsis)
 }
 
 @Composable

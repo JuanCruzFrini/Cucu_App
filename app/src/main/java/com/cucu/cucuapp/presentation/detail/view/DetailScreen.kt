@@ -94,6 +94,7 @@ fun DetailContent(
     showSnackBar:(String) -> Unit
 ) {
     viewModel.authListener()
+    product?.let { viewModel.increaseSeenTimes(it) }
     product?.id?.let { id -> viewModel.saveInUserHistory(id) }
 
     var detailStock by rememberSaveable { mutableStateOf(product?.stock) }
@@ -155,7 +156,7 @@ fun DetailContent(
             contentDescription = null,
             error = painterResource(id = R.drawable.ic_launcher_foreground),
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            modifier = Modifier.fillMaxWidth().height(250.dp)
+            modifier = Modifier.fillMaxWidth().height(300.dp)
         )
 
         PriceBlock(product)

@@ -120,7 +120,6 @@ fun CartScreen(
                                     viewModel.removeProduct(id)
                                     viewModel.getCart()
                                 },
-                                //editQuantity = {}
                             )
                         }
                     }

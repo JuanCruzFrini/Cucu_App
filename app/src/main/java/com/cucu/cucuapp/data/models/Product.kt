@@ -18,13 +18,16 @@ data class Product(
     val img:String?="",
     val description:String?="",
     val code:Long?=0L,
-    val isDiscount:Boolean?= false,
+    val seenTimes:Int?=0,
+    val soldTimes:Int?=0,
+    val favTimes:Int?=0,
+    //val isDiscount:Boolean?= false,
     val category: ItemCategory? = ItemCategory()
 ) : Parcelable {
 
-  /*  fun isDiscount(): Boolean{
+    fun isDiscount(): Boolean {
         return if (newPrice!=null && oldPrice!=null){
             newPrice.toInt() < oldPrice.toInt()
         } else false
-    }*/
+    }
 }

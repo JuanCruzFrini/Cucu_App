@@ -101,6 +101,16 @@ class ProductsDataSource @Inject constructor(
          return product
     }
 
+    suspend fun increaseSeenTimes(product: Product){
+        product.id?.let { id ->
+            val newSeenTimes = product.seenTimes?.plus(1)
+
+            db.collection(Constants.PRODUCTS_COLL)
+                .document(id)
+                .update("seenTimes", newSeenTimes).await()
+        }
+    }
+
     suspend fun saveInUsersHistory(productId:String) {
         user?.let {
             val historyRef = db.collection(Constants.USERS_COLL)
@@ -162,19 +172,32 @@ class ProductsDataSource @Inject constructor(
                 .whereEqualTo(Constants.PRODUCT_ID, productId)
                 .get().await()
 
-
             if (productWithThisId.isEmpty) {
                 favoritesRef.add(ItemSaved(productId = productId)).await()
+                updateFavTimes(productId, true)
                 existInList = true
             } else {
                 productWithThisId.documents.forEach {
                     favoritesRef.document(it.id).delete().await()
+                    updateFavTimes(productId, false)
                     existInList = false
                 }
             }
         }
         return existInList
     }
+
+    private suspend fun updateFavTimes(productId: String, increase: Boolean) {
+        val product = getProductById(productId)
+
+        val newFavTimes: Int? =
+            if (increase) product.favTimes?.plus(1) else product.favTimes?.minus(1)
+
+        db.collection(Constants.PRODUCTS_COLL)
+            .document(productId)
+            .update(mapOf("favTimes" to newFavTimes))
+    }
+
     suspend fun getFavorites(): List<Product> {
         val products = mutableListOf<Product>()
 
@@ -235,31 +258,6 @@ class ProductsDataSource @Inject constructor(
         }
         return purchaseId
     }
-    suspend fun getPurchasesReferences(): List<Purchase> {
-        val purchases = mutableListOf<Purchase>()
-
-        val fetch = db.collection(Constants.PURCHASES_REFS_COLL).get().await()
-
-        fetch.documents.forEach { document ->
-            val purchaseRef = document.toObject(PurchaseReference::class.java)
-            purchaseRef?.let { ref ->
-                if (ref.uid != null && ref.documentId != null) {
-                    val purchaseDoc = db.collection(Constants.USERS_COLL)
-                        .document(ref.uid)
-                        .collection(Constants.PURCHASES_COLL)
-                        .document(ref.documentId)
-                        .get().await()
-
-                    val purchase = purchaseDoc.toObject(Purchase::class.java)
-                    purchase?.id = ref.documentId
-                    purchase?.let { purchases.add(it) }
-                }
-
-            }
-        }
-
-        return purchases.sortedBy { it.date }
-    }
 
     suspend fun cancelPurchase(purchase: Purchase){
         user?.let { user ->
@@ -282,14 +280,21 @@ class ProductsDataSource @Inject constructor(
 
                 CoroutineScope(Dispatchers.IO).launch {
                     var newStock:Int? = 0
+                    var newSoldTimes:Int? = 0
 
                     async {
                         val product = getProductById(id)
                         newStock = product.stock?.plus(cartProduct.quantity!!)
+                        newSoldTimes = product.soldTimes?.minus(cartProduct.quantity!!)
                     }.await()
 
                     db.collection(Constants.PRODUCTS_COLL).document(id)
-                        .update("stock", newStock).await()
+                        .update(
+                            mapOf(
+                                "stock" to newStock,
+                                "soldTimes" to newSoldTimes
+                            )
+                        ).await()
                 }
             }
         }
@@ -308,7 +313,12 @@ class ProductsDataSource @Inject constructor(
                     }.await()
 
                     db.collection(Constants.PRODUCTS_COLL).document(id)
-                        .update("stock", newStock).await()
+                        .update(
+                            mapOf(
+                                "stock" to newStock,
+                                "soldTimes" to cartProduct.quantity
+                            ),
+                        ).await()
                 }
             }
         }
@@ -349,20 +359,14 @@ class ProductsDataSource @Inject constructor(
                 .document(user.uid)
                 .collection(Constants.PURCHASES_COLL)
                 .document(purchaseId)
-                //.orderBy(Constants.DATE, Query.Direction.DESCENDING)
                 .get().await()
 
-                /*val purchaseObj = */
-                purchaseDoc.toObject(Purchase::class.java)?.let { purchase = it  }
-                //purchaseObj?.let { purchase = it }
-                purchase.id = purchaseDoc.id//purchaseObj.id
-                //purchase?.id = document.id
+            purchaseDoc.toObject(Purchase::class.java)?.let { purchase = it }
+            purchase.id = purchaseDoc.id
 
-                purchase?.products?.forEach { cartProduct ->
-                    cartProduct.product.id = cartProduct.productId
-                }
-
-                //purchase?.let { purchases.add(it) }
+            purchase.products?.forEach { cartProduct ->
+                cartProduct.product.id = cartProduct.productId
+            }
         }
 
         return purchase

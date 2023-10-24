@@ -1,5 +1,6 @@
 package com.cucu.cucuapp.data.repository
 
+import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.data.network.ProductsDataSource
 import javax.inject.Inject
@@ -15,7 +16,7 @@ class ProductsRepository @Inject constructor(private val dataSource: ProductsDat
     suspend fun getFavorites() = dataSource.getFavorites()
     suspend fun getPurchases() = dataSource.getPurchases()
     suspend fun getPurchaseById(purchaseId:String) = dataSource.getPurchaseById(purchaseId)
-    suspend fun getPurchasesReferences() = dataSource.getPurchasesReferences()
+    suspend fun increaseSeenTimes(product: Product) = dataSource.increaseSeenTimes(product)
     suspend fun createPurchase(purchase: Purchase):String = dataSource.createPurchase(purchase)
     suspend fun cancelPurchase(purchase: Purchase) = dataSource.cancelPurchase(purchase)
     suspend fun getCart() = dataSource.getCart()
