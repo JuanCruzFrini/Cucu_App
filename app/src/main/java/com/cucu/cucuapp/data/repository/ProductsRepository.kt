@@ -1,13 +1,17 @@
 package com.cucu.cucuapp.data.repository
 
+import com.cucu.cucuapp.data.fakedatasources.FakeDataSource
 import com.cucu.cucuapp.data.models.Product
 import com.cucu.cucuapp.data.models.purchase.Purchase
 import com.cucu.cucuapp.data.network.ProductsDataSource
 import javax.inject.Inject
 
-class ProductsRepository @Inject constructor(private val dataSource: ProductsDataSource) {
+class ProductsRepository @Inject constructor(
+    private val dataSource: ProductsDataSource,
+    private val fakeDataSource: FakeDataSource
+) {
     suspend fun getAllProducts() = dataSource.getAllProducts()
-    suspend fun getCategories() = dataSource.getCategories()
+    suspend fun getCategories() = fakeDataSource.categoriesList//dataSource.getCategories()
     suspend fun getDiscounts() = dataSource.getDiscounts()
     suspend fun getHistory() = dataSource.getUserHistory()
     suspend fun saveInUsersHistory(productId:String) = dataSource.saveInUsersHistory(productId)

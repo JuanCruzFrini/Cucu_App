@@ -51,8 +51,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -62,9 +60,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.cucu.cucuapp.R
 import com.cucu.cucuapp.application.Routes
 import com.cucu.cucuapp.application.firstCharToUpperCase
 import com.cucu.cucuapp.data.models.Product
@@ -207,8 +207,6 @@ fun ProfileScreen(
     ) {
         ProfileHeader(user)
 
-
-
         viewModel.loadingFavorites.observeAsState().value?.let { isFavsLoading = it }
         viewModel.loadingHistory.observeAsState().value?.let { isHistoryLoading = it }
 
@@ -333,41 +331,54 @@ fun ProductRowItem(product: Product, mainNavController: NavHostController) {
 
 @Composable
 fun ProfileHeader(user: User) {
-    Column {
-    Box(
-        Modifier
-            .height(150.dp)
-            .padding(16.dp), contentAlignment = Alignment.Center) {
+    ConstraintLayout {
+        val (backImg, profileImg, name) = createRefs()
+
         AsyncImage(
-            model = Purple40,
+            model = R.drawable.purple_bg,
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier
-                .fillMaxWidth()
-                .blur(50.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-                .background(Purple40),
+                .constrainAs(backImg) {
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
+                .height(200.dp)
         )
+
         AsyncImage(
             model = "${user.img}", contentDescription = "",
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop,
             modifier = Modifier
+                .constrainAs(profileImg) {
+                    top.linkTo(backImg.top)
+                    end.linkTo(backImg.end)
+                    start.linkTo(backImg.start)
+                    bottom.linkTo(name.top)
+                }
                 .size(120.dp, 120.dp)
                 .border(3.dp, Color.White, CircleShape)
                 .background(Color.DarkGray, CircleShape)
                 .shadow(8.dp, CircleShape),
         )
-    }
-    Text(
-        text = "${user.name}",
-        Modifier
-            .fillMaxWidth()
-            .background(BlackTransparent)
-            .align(Alignment.CenterHorizontally),
-        color = Color.White,
-        fontSize = 24.sp,
-        fontStyle = FontStyle.Italic,
-        textAlign = TextAlign.Center)
+
+        Text(
+            text = "${user.name}",
+            modifier = Modifier
+                .constrainAs(name) {
+                    bottom.linkTo(backImg.bottom)
+                    end.linkTo(backImg.end)
+                    start.linkTo(backImg.start)
+                }
+                .fillMaxWidth()
+                .background(BlackTransparent),
+            color = Color.White,
+            fontSize = 24.sp,
+            fontStyle = FontStyle.Italic,
+            textAlign = TextAlign.Center)
+
     }
 }
 

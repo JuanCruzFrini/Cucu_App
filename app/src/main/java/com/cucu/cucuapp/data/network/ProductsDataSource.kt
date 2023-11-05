@@ -251,10 +251,13 @@ class ProductsDataSource @Inject constructor(
                         .add(
                             PurchaseReference(
                                 documentId = document.id,
-                                uid = user.uid
+                                uid = user.uid,
+                                amount = purchase.getAmount(),
+                                productsQuantity = purchase.getQuantity()
                             )
                         )
                 }.await()
+
         }
         return purchaseId
     }
@@ -306,17 +309,19 @@ class ProductsDataSource @Inject constructor(
 
                 CoroutineScope(Dispatchers.IO).launch {
                     var newStock:Int? = 0
+                    var newSoldTimes:Int? = 0
 
                     async {
                         val product = getProductById(id)
                         newStock = product.stock?.minus(cartProduct.quantity!!)
+                        newSoldTimes = product.soldTimes?.plus(cartProduct.quantity!!)
                     }.await()
 
                     db.collection(Constants.PRODUCTS_COLL).document(id)
                         .update(
                             mapOf(
                                 "stock" to newStock,
-                                "soldTimes" to cartProduct.quantity
+                                "soldTimes" to newSoldTimes//cartProduct.quantity
                             ),
                         ).await()
                 }
